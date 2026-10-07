@@ -53,10 +53,12 @@ RUN for i in /usr/share/sangfor/EasyConnect/resources/conf_*/; do \
 
 COPY ./docker-root /
 
-COPY --from=hagb/docker-easyconnect:build /results/fake-hwaddr/ /results/tinyproxy-ws/ /
+COPY --from=hagb/docker-easyconnect:build /results/fake-hwaddr/ /results/tinyproxy-ws/ /results/gost/ /
 
 ENV PING_INTERVAL=1800
 
 VOLUME /root/ /usr/share/sangfor/EasyConnect/resources/logs/
+
+HEALTHCHECK --interval=1m --timeout=15s --start-period=45s --retries=3 CMD ["/usr/local/bin/socks5-healthcheck.sh"]
 
 CMD ["start.sh"]

@@ -77,6 +77,22 @@ start_danted() {
 	fi
 }
 
+start_proxy() {
+	# NODANTED 不为空时不启动代理（可用于和 `--net host` 参数配合，提供全局透明代理）
+	[ -n "$NODANTED" ] && return 0
+	# 注意 `&` 不能直接作用于 `[ ... ] && cmd` 列表（bash 会为整个列表 fork 常驻子 shell，
+	# 阻塞 start.sh 末尾的 wait，导致 start-sangfor.sh 不被执行），必须用 `( cmd & )` 脱钩
+	[ -z "$DISABLE_PROXY_WATCHDOG" ] && ( proxy-watchdog.sh & )
+	if [ -x /usr/local/bin/gost ]; then
+		open_port 1080
+		open_port 8888
+		gost-proxy.sh &
+	else
+		start_danted &
+		start_tinyproxy &
+	fi
+}
+
 start_tinyproxy() {
 	open_port 8888
 	tinyproxy -c /etc/tinyproxy.conf
@@ -198,8 +214,7 @@ done
 
 ulimit -n 1048576 # https://github.com/Hagb/docker-easyconnect/issues/245 @rikaunite
 forward_ports &
-start_danted &
-start_tinyproxy &
+start_proxy &
 config_vpn_iptables &
 force_open_ports &
 keep_pinging &

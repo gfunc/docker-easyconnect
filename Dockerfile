@@ -37,7 +37,7 @@ RUN /tmp/build-scripts/install-vpn-gui.sh
 
 COPY ./docker-root /
 
-COPY --from=hagb/docker-easyconnect:build /results/fake-hwaddr/ /results/fake-getlogin/ /results/tinyproxy-ws/ /results/novnc/ /
+COPY --from=hagb/docker-easyconnect:build /results/fake-hwaddr/ /results/fake-getlogin/ /results/tinyproxy-ws/ /results/novnc/ /results/gost/ /
 
 #ENV TYPE="" PASSWORD="" LOOP=""
 #ENV DISPLAY
@@ -46,5 +46,7 @@ COPY --from=hagb/docker-easyconnect:build /results/fake-hwaddr/ /results/fake-ge
 ENV PING_INTERVAL=1800
 
 VOLUME /root/ /usr/share/sangfor/EasyConnect/resources/logs/
+
+HEALTHCHECK --interval=1m --timeout=15s --start-period=45s --retries=3 CMD ["/usr/local/bin/socks5-healthcheck.sh"]
 
 CMD ["start.sh"]

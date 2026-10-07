@@ -29,7 +29,9 @@
 
 - `MAX_RETRY`: 最大重连次数，默认为空。
 
-- `NODANTED`: 默认为空。不为空时提供 socks5 代理的`danted`将不会启动（可用于和`--net host`参数配合，提供全局透明代理）。
+- `NODANTED`: 默认为空。不为空时不启动代理服务（可用于和`--net host`参数配合，提供全局透明代理），此时健康检查直接视为健康。
+
+- 代理实现：amd64/arm64 镜像内置`gost`，单进程同时提供 socks5（1080 端口，含 UDP 转发）与 http（8888 端口）代理；其他架构回退为`danted`（socks5）与`tinyproxy`（http）。镜像带有基于 SOCKS5 协议探测的健康检查（`HEALTHCHECK`）。
 
 - `PING_ADDR`: 默认为空。用于定时 ping 的目的地址（域名、ip 皆可，但需要是 VPN 进行代理的地址），可用于保持 VPN 连接，留空时不做此操作。（服务端可能会配置成无流量通过 VPN 超过一定时间则自动断线，故用此方法可以保持更长时间在线）
 
@@ -37,9 +39,15 @@
 
 - `PING_INTERVAL`: 默认为 1800。单位为秒的 ping `PING_ADDR` 的间隔。
 
-- `SOCKS_USER`: 默认为空，不为空时以此为用户名启用 socks5 代理的密码认证
+- `PROXY_WATCHDOG_INTERVAL`: 默认为 30。单位为秒的代理（socks5）健康探测间隔。
 
-- `SOCKS_PASSWD`: 默认为空，`SOCKS_USER` 不为空时此变量作为 socks5 代理的密码
+- `PROXY_WATCHDOG_RETRIES`: 默认为 3。代理探测连续失败达到此次数后，看门狗会重启代理进程（不影响 VPN 会话）。
+
+- `DISABLE_PROXY_WATCHDOG`: 默认为空。不为空时关闭代理看门狗。
+
+- `SOCKS_USER`: 默认为空，不为空时以此为用户名启用代理的密码认证（gost 下同时作用于 socks5 与 http 代理，且密码不能包含 URL 特殊字符，如`@`、`:`、`/`）
+
+- `SOCKS_PASSWD`: 默认为空，`SOCKS_USER` 不为空时此变量作为代理的密码
 
 ### 仅适用于纯命令行版本的环境变量
 

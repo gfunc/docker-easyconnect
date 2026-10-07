@@ -51,3 +51,15 @@ RUN cd /tmp/src/ && \
       * ) printf "Not a vaild value of NOVNC_METHOD: %s\n" "${NOVNC_METHOD}" >&2 && false ;; \
     esac && ln -s novnc-${NOVNC_METHOD}.sh /results/novnc/usr/local/bin/novnc
 
+# gost：单进程同时提供 socks5（含 UDP）与 http 代理；amd64/arm64 有官方构建，
+# 其他架构留空，容器内回退到 danted + tinyproxy
+ARG GOST_VERSION=v3.3.0
+RUN mkdir -p /results/gost/usr/local/bin && cd /tmp/src/ && \
+    case "$(dpkg --print-architecture)" in \
+        amd64 | arm64 ) \
+            wget "https://github.com/go-gost/gost/releases/download/${GOST_VERSION}/gost_${GOST_VERSION#v}_linux_$(dpkg --print-architecture).tar.gz" -O gost.tar.gz && \
+            tar xzf gost.tar.gz && \
+            install gost /results/gost/usr/local/bin/gost ;; \
+        * ) echo "No official gost build for $(dpkg --print-architecture), will fallback to danted + tinyproxy" >&2 ;; \
+    esac
+
