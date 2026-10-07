@@ -16,6 +16,7 @@ echo "deb $MIRROR_URL trixie main
 deb $MIRROR_URL $VERSION_CODENAME main
 deb http://deb.debian.org/debian-security $VERSION_CODENAME-security main
 deb $MIRROR_URL bullseye main
-deb http://deb.debian.org/debian-security bullseye-security main
+# bullseye LTS 已结束，bullseye-security 池已从 deb.debian.org 迁入 archive.debian.org
+deb http://archive.debian.org/debian-security bullseye-security main
 " > /etc/apt/sources.list &&
 rm -rf /etc/apt/sources.list.d
