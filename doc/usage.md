@@ -45,6 +45,14 @@
 
 - `DISABLE_PROXY_WATCHDOG`: 默认为空。不为空时关闭代理看门狗。
 
+- `VPN_PROBE_ADDR`: 默认为空。VPN 健康探测地址，逗号分隔多个`host:port`（任一可达即视为 VPN 存活）。设置后看门狗除检查隧道接口与路由外，还会实际穿透隧道做 TCP 探测，可发现"已登录但会话假死"的故障。VPN 连续不可达时代理会被摘除（端口秒级拒绝，避免上游慢速超时堆积），恢复后自动拉起；`docker logs` 中有相应提示。
+
+- `DISABLE_VPN_GATE`: 默认为空。不为空时关闭上述 VPN 门控（代理不再随 VPN 状态摘除/恢复）。
+
+- `VPN_DNS`: 默认为空。设置后为 gost 启用 split-DNS：命中`VPN_DNS_DOMAINS`的域名通过该 DNS（需 VPN 隧道可达，如内网 DNS）解析，其余域名照常走容器默认解析。仅对客户端把域名交给代理解析的用法（socks5h、http 代理）生效。
+
+- `VPN_DNS_DOMAINS`: 默认为空。split-DNS 的域名后缀列表，逗号分隔，如`.uco.com`（前缀带点时裸域也会一并匹配）。
+
 - `SOCKS_USER`: 默认为空，不为空时以此为用户名启用代理的密码认证（gost 下同时作用于 socks5 与 http 代理，且密码不能包含 URL 特殊字符，如`@`、`:`、`/`）
 
 - `SOCKS_PASSWD`: 默认为空，`SOCKS_USER` 不为空时此变量作为代理的密码

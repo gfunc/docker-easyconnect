@@ -9,6 +9,7 @@ case "${reply// /}" in
 	05*) exit 0 ;;
 	*)
 		echo "socks5 greeting got no valid reply: ${reply:-<empty>}" >&2
+		echo "hint: 若日志中有 '摘除代理' 字样，属于 VPN 不可达时看门狗的预期行为（docker logs 可见）" >&2
 		exit 1
 		;;
 esac
