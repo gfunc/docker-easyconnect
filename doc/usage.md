@@ -53,6 +53,26 @@
 
 - `VPN_DNS_DOMAINS`: 默认为空。split-DNS 的域名后缀列表，逗号分隔，如`.uco.com`（前缀带点时裸域也会一并匹配）。
 
+### 持久化 aTrust 的状态（地址与登录信息）
+
+aTrust 的服务器地址与状态默认存放在容器层，容器重建（如更新镜像）后会丢失，需要重新通过
+VNC 输入服务器地址并登录。可通过挂载数据卷持久化（以 docker-compose 为例）：
+
+```yaml
+services:
+  atrust:
+    volumes:
+      - atrust-state:/home/sangfor/.aTrust
+      - atrust-conf:/usr/share/sangfor/.aTrust/var/conf
+volumes:
+  atrust-state:
+  atrust-conf:
+```
+
+其中`/usr/share/sangfor/.aTrust/var/conf`保存服务器地址（`addr.conf`）与证书，
+`/home/sangfor/.aTrust`保存运行状态数据库。持久化后重建容器可免去重新输入服务器地址
+（登录密码通常仍需重新输入）。注意卷内文件属主需与容器内`sangfor`用户（默认 uid 1234）一致。
+
 - `SOCKS_USER`: 默认为空，不为空时以此为用户名启用代理的密码认证（gost 下同时作用于 socks5 与 http 代理，且密码不能包含 URL 特殊字符，如`@`、`:`、`/`）
 
 - `SOCKS_PASSWD`: 默认为空，`SOCKS_USER` 不为空时此变量作为代理的密码
