@@ -28,6 +28,8 @@ auth_block() {
 		echo "    type: $1"
 		# resolver 必须挂 handler 级：挂 service 级时 gost 不会按 matcher 回落到后续 resolver
 		[ -n "$VPN_DNS" ] && echo "    resolver: vpn-dns"
+		# socks5 启用 UDP 转发（对应 CLI 时代的 ?udp=true）
+		[ socks5 = "$1" ] && { echo "    metadata:"; echo "      udp: true"; }
 		auth_block
 		echo "  listener:"
 		echo "    type: tcp"
